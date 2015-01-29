@@ -1,0 +1,17 @@
+{
+  "name": "homie",
+  "version": "0.0.1",
+  "description": "Central hub for controlling your lamps.",
+  "main": "index.js",
+  "dependencies": {
+    "node-gyp": "~1.0.2",
+    "telldus": "0.0.9",
+    "express": "~4.11.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Markus Hedlund <znarkus@gmail.com>",
+  "license": "MIT"
+}
