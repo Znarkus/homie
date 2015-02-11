@@ -13,5 +13,9 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "fastclick": "~1.0.6",
+    "jquery": "~2.1.3"
+  }
 }

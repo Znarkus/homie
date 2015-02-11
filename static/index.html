@@ -2,7 +2,18 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
 	<title>HOMIE</title>
+	<style>
+		body, button {
+			font-size: 30px;
+		}
+		button {
+			padding: 5px;
+			margin: 10px;
+		}
+	</style>
 </head>
 <body>
 
@@ -28,7 +39,12 @@
 
 
 	<script src="jquery/dist/jquery.min.js"></script>
+	<script src="fastclick/lib/fastclick.js"></script>
 	<script>
+		$(function() {
+			FastClick.attach(document.body);
+		});
+
 		$('form').submit(function () {
 			var $this = $(this);
 			$.post($this.attr('action'));
