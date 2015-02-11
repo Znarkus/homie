@@ -1,2 +1,2 @@
 # homie
-Central hub for controlling your lamps
+Central hub for controlling your home
