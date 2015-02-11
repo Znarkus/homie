@@ -1,0 +1,17 @@
+{
+  "name": "homie",
+  "main": "index.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Znarkus/homie",
+  "authors": [
+    "Markus Hedlund <znarkus@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

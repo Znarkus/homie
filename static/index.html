@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>HOMIE</title>
+</head>
+<body>
+
+	<form action="off" method="post">
+		<button type="submit">OFF</button>
+	</form>
+
+	<form action="morning" method="post">
+		<button type="submit">MORNING</button>
+	</form>
+
+	<form action="cozy" method="post">
+		<button type="submit">COZY</button>
+	</form>
+
+	<form action="full" method="post">
+		<button type="submit">FULL</button>
+	</form>
+
+	<form action="cinema" method="post">
+		<button type="submit">CINEMA</button>
+	</form>
+
+
+	<script src="jquery/dist/jquery.min.js"></script>
+	<script>
+		$('form').submit(function () {
+			var $this = $(this);
+			$.post($this.attr('action'));
+			return false;
+		});
+	</script>
+</body>
+</html>
