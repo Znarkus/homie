@@ -3,6 +3,7 @@ var app = express();
 //var telldus = require('telldus');
 var childProcess = require('child_process');
 var logger = require('just-log');
+var config = require('./config');
 
 function runCommand(commands, cb) {
 	var cmd = 'tdtool';
@@ -39,8 +40,13 @@ function runCommands(commands) {
 			return;
 		}
 
-		runCommand(commands[index], function (error, out) {
-			logger.info(out.trim());
+		runCommand(commands[index], function (error, out, err) {
+			if (error) {
+				logger.error(err.trim());
+			} else {
+				logger.info(out.trim());
+			}
+
 			index += 1;
 			run();
 		});
@@ -86,9 +92,9 @@ app.use(express.static('bower_components'));
 
 app.post('/morning', function (req, res) {
 	runCommands([
-		[ { command: 'on', param: 3 } ],
-		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: 2 } ],
-		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: 4 } ]
+		[ { command: 'on', param: config.lamps.WINDOW_LAMPS } ],
+		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
+		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
 	]);
 
 	//telldus.turnOn(1);
@@ -100,9 +106,9 @@ app.post('/morning', function (req, res) {
 
 app.post('/off', function (req, res) {
 	runCommands([
-		[ { command: 'off', param: 2 } ],
-		[ { command: 'off', param: 3 } ],
-		[ { command: 'off', param: 4 } ]
+		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
+		[ { command: 'off', param: config.lamps.CEILING_LAMPS } ],
+		[ { command: 'off', param: config.lamps.TABLE_LAMPS } ]
 	]);
 
 	//telldus.turnOff(1);
@@ -114,9 +120,9 @@ app.post('/off', function (req, res) {
 
 app.post('/cozy', function (req, res) {
 	runCommands([
-		[ { command: 'off', param: 3 } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: 2 } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: 4 } ]
+		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
+		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
+		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
 	]);
 
 	//telldus.turnOff(1);
@@ -128,9 +134,9 @@ app.post('/cozy', function (req, res) {
 
 app.post('/full', function (req, res) {
 	runCommands([
-		[ { command: 'on', param: 3 } ],
-		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: 2 } ],
-		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: 4 } ]
+		[ { command: 'on', param: config.lamps.WINDOW_LAMPS } ],
+		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
+		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
 	]);
 
 	//telldus.turnOn(1);
@@ -143,9 +149,9 @@ app.post('/full', function (req, res) {
 
 app.post('/cinema', function (req, res) {
 	runCommands([
-		[ { command: 'off', param: 3 } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: 4 } ],
-		[ { command: 'off', param: 2 } ]
+		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
+		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ],
+		[ { command: 'off', param: config.lamps.CEILING_LAMPS } ]
 	]);
 
 	//telldus.turnOff(1);
