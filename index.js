@@ -14,7 +14,7 @@ function iphoneHasBeenSeen() {
 	// If was away but is now found
 	if (iphoneIsAway()) {
 		if (withinOperationHours()) {
-			lightsMorning();
+			setLampSetting(config.iphone.lampSettings.return);
 		}
 	}
 
@@ -26,16 +26,25 @@ function withinOperationHours() {
 }
 
 function setupIphoneScan() {
-	var cmd = 'nmap -p 62078 ' + config.iphoneIp + ' | grep "62078/tcp open"';
+	var cmd = 'nmap -p 62078 ' + config.iphone.ip + ' | grep "62078/tcp open"';
+	var iphoneWasAwayLast;
 
 	setInterval(function () {
 		childProcess.exec(cmd, function (e, o) {
 			if (o.trim() !== '') {
+				// Wifi active
 				iphoneHasBeenSeen();
-			} else if (iphoneIsAway()) {
-				if (withinOperationHours()) {
-					lightsOff();
+				iphoneWasAwayLast = false;
+			} else {
+				// Wifi not active
+				if (iphoneIsAway() && iphoneWasAwayLast !== undefined && !iphoneWasAwayLast) {
+					// Iphone just disappeared
+					if (withinOperationHours()) {
+						setLampSetting(config.iphone.lampSettings.leave);
+					}
 				}
+
+				iphoneWasAwayLast = true;
 			}
 		});
 	}, 5000);
@@ -87,41 +96,47 @@ function runCommands(commands) {
 	}
 }
 
-function lightsMorning() {
-	runCommands([
-		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
-		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
-		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
-	]);
+function setLampSetting(setting) {
+	logger.info('Lamp setting: %s', setting);
+	runCommands(config.lampSettings[setting]);
 }
-function lightsOff() {
-	runCommands([
-		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
-		[{command: 'off', param: config.lamps.CEILING_LAMPS}],
-		[{command: 'off', param: config.lamps.TABLE_LAMPS}]
-	]);
-}
-function lightsCozy() {
-	runCommands([
-		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
-		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
-		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
-	]);
-}
-function lightsFull() {
-	runCommands([
-		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
-		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
-		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
-	]);
-}
-function lightsCinema() {
-	runCommands([
-		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
-		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}],
-		[{command: 'off', param: config.lamps.CEILING_LAMPS}]
-	]);
-}
+
+//function lightsMorning() {
+//
+//	runCommands([
+//		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
+//		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+//		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
+//	]);
+//}
+//function lightsOff() {
+//	runCommands([
+//		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+//		[{command: 'off', param: config.lamps.CEILING_LAMPS}],
+//		[{command: 'off', param: config.lamps.TABLE_LAMPS}]
+//	]);
+//}
+//function lightsCozy() {
+//	runCommands([
+//		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+//		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+//		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
+//	]);
+//}
+//function lightsFull() {
+//	runCommands([
+//		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
+//		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+//		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
+//	]);
+//}
+//function lightsCinema() {
+//	runCommands([
+//		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+//		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}],
+//		[{command: 'off', param: config.lamps.CEILING_LAMPS}]
+//	]);
+//}
 function activate() {
 	setupIphoneScan();
 
@@ -136,8 +151,8 @@ function activate() {
 	//2	Taklampor	DIMMED:1
 	//3	Byrå	DIMMED:1
 
-	app.post('/morning', function (req, res) {
-		lightsMorning();
+	app.post('/lamp-setting/:setting', function (req, res) {
+		setLampSetting(req.param('setting'));
 
 		//telldus.turnOn(1);
 		//telldus.dim(2, 120);
@@ -146,7 +161,7 @@ function activate() {
 		res.send('');
 	});
 
-	app.post('/off', function (req, res) {
+	/*app.post('/off', function (req, res) {
 		lightsOff();
 
 		//telldus.turnOff(1);
@@ -185,7 +200,7 @@ function activate() {
 		//telldus.turnOff(2);
 
 		res.send('');
-	});
+	});*/
 
 	var server = app.listen(3000, function () {
 
