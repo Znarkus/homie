@@ -4,6 +4,47 @@ var app = express();
 var childProcess = require('child_process');
 var logger = require('just-log');
 var config = require('./config');
+var iphoneLastSeen;
+
+activate();
+
+////////////////////
+
+function iphoneHasBeenSeen() {
+	// If was away but is now found
+	if (iphoneIsAway()) {
+		if (withinOperationHours()) {
+			lightsMorning();
+		}
+	}
+
+	iphoneLastSeen = new Date();
+}
+function withinOperationHours() {
+	var now = new Date();
+	return now.getHours() > 7 && now.getHours() < 22;
+}
+
+function setupIphoneScan() {
+	var cmd = 'nmap -p 62078 ' + config.iphoneIp + ' | grep "62078/tcp open"';
+
+	setInterval(function () {
+		childProcess.exec(cmd, function (e, o) {
+			if (o.trim() !== '') {
+				iphoneHasBeenSeen();
+			} else if (iphoneIsAway()) {
+				if (withinOperationHours()) {
+					lightsOff();
+				}
+			}
+		});
+	}, 5000);
+}
+
+function iphoneIsAway() {
+	// last seen + 20 minutes >= now
+	return iphoneLastSeen !== undefined && new Date(iphoneLastSeen.getTime() + 20 * 60000) >= new Date();
+}
 
 function runCommand(commands, cb) {
 	var cmd = 'tdtool';
@@ -21,13 +62,6 @@ function runCommand(commands, cb) {
 	childProcess.exec(cmd, cb);
 
 	//childProcess.exec(cmd, function (error, stdout, stderr) {
-		//console.log('stdout: ' + stdout);
-		//console.log('stderr: ' + stderr);
-		//if (error !== null) {
-		//	console.log('exec error: ' + error);
-		//}
-
-	//});
 }
 
 function runCommands(commands) {
@@ -53,119 +87,126 @@ function runCommands(commands) {
 	}
 }
 
-//runCommand([
-//	{ command: 'list' }
-//]);
-
-//runCommands([
-//	[ { command: 'on', param: 3 } ],
-//	[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: 2 } ]
-//]);
-
-//runCommand([
-//	{ command: 'dimlevel', param: 255 },
-//	{ command: 'dim', param: 2 }
-//]);
-
-
-//telldus.getDevices(function(err,devices) {
-//	if ( err ) {
-//		console.log('Error: ' + err);
-//	} else {
-//		// A list of all configured devices is returned
-//		console.log('DEVICES:');
-//		console.log(devices);
-//	}
-//});
-
-
-app.use(express.static('static'));
-app.use(express.static('bower_components'));
-
-//3	Strömbrytare vägg	ON
-//2	Taklampor	DIMMED:1
-//4	Byrå	DIMMED:192
-
-//1	Bordslampor	ON
-//2	Taklampor	DIMMED:1
-//3	Byrå	DIMMED:1
-
-app.post('/morning', function (req, res) {
+function lightsMorning() {
 	runCommands([
-		[ { command: 'on', param: config.lamps.WINDOW_LAMPS } ],
-		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
-		[ { command: 'dimlevel', param: 100 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
+		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
+		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+		[{command: 'dimlevel', param: 100}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
 	]);
-
-	//telldus.turnOn(1);
-	//telldus.dim(2, 120);
-	//telldus.dim(3, 100);
-
-	res.send('');
-});
-
-app.post('/off', function (req, res) {
+}
+function lightsOff() {
 	runCommands([
-		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
-		[ { command: 'off', param: config.lamps.CEILING_LAMPS } ],
-		[ { command: 'off', param: config.lamps.TABLE_LAMPS } ]
+		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+		[{command: 'off', param: config.lamps.CEILING_LAMPS}],
+		[{command: 'off', param: config.lamps.TABLE_LAMPS}]
 	]);
-
-	//telldus.turnOff(1);
-	//telldus.turnOff(2);
-	//telldus.turnOff(3);
-
-	res.send('');
-});
-
-app.post('/cozy', function (req, res) {
+}
+function lightsCozy() {
 	runCommands([
-		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
+		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
 	]);
-
-	//telldus.turnOff(1);
-	//telldus.dim(2, 1);
-	//telldus.dim(3, 1);
-
-	res.send('');
-});
-
-app.post('/full', function (req, res) {
+}
+function lightsFull() {
 	runCommands([
-		[ { command: 'on', param: config.lamps.WINDOW_LAMPS } ],
-		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: config.lamps.CEILING_LAMPS } ],
-		[ { command: 'dimlevel', param: 255 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ]
+		[{command: 'on', param: config.lamps.WINDOW_LAMPS}],
+		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.CEILING_LAMPS}],
+		[{command: 'dimlevel', param: 255}, {command: 'dim', param: config.lamps.TABLE_LAMPS}]
 	]);
-
-	//telldus.turnOn(1);
-	//telldus.dim(2, 255);
-	//telldus.dim(3, 255);
-
-	res.send('');
-});
-
-
-app.post('/cinema', function (req, res) {
+}
+function lightsCinema() {
 	runCommands([
-		[ { command: 'off', param: config.lamps.WINDOW_LAMPS } ],
-		[ { command: 'dimlevel', param: 1 }, { command: 'dim', param: config.lamps.TABLE_LAMPS } ],
-		[ { command: 'off', param: config.lamps.CEILING_LAMPS } ]
+		[{command: 'off', param: config.lamps.WINDOW_LAMPS}],
+		[{command: 'dimlevel', param: 1}, {command: 'dim', param: config.lamps.TABLE_LAMPS}],
+		[{command: 'off', param: config.lamps.CEILING_LAMPS}]
 	]);
+}
+function activate() {
+	setupIphoneScan();
 
-	//telldus.turnOff(1);
-	//telldus.dim(3, 1);
-	//telldus.turnOff(2);
+	app.use(express.static('static'));
+	app.use(express.static('bower_components'));
 
-	res.send('');
-});
+	//3	Strömbrytare vägg	ON
+	//2	Taklampor	DIMMED:1
+	//4	Byrå	DIMMED:192
 
-var server = app.listen(3000, function () {
+	//1	Bordslampor	ON
+	//2	Taklampor	DIMMED:1
+	//3	Byrå	DIMMED:1
 
-	var host = server.address().address;
-	var port = server.address().port;
+	app.post('/morning', function (req, res) {
+		lightsMorning();
 
-	logger.info('Homie is listening at http://%s:%s', host, port);
+		//telldus.turnOn(1);
+		//telldus.dim(2, 120);
+		//telldus.dim(3, 100);
 
-});
+		res.send('');
+	});
+
+	app.post('/off', function (req, res) {
+		lightsOff();
+
+		//telldus.turnOff(1);
+		//telldus.turnOff(2);
+		//telldus.turnOff(3);
+
+		res.send('');
+	});
+
+	app.post('/cozy', function (req, res) {
+		lightsCozy();
+
+		//telldus.turnOff(1);
+		//telldus.dim(2, 1);
+		//telldus.dim(3, 1);
+
+		res.send('');
+	});
+
+	app.post('/full', function (req, res) {
+		lightsFull();
+
+		//telldus.turnOn(1);
+		//telldus.dim(2, 255);
+		//telldus.dim(3, 255);
+
+		res.send('');
+	});
+
+
+	app.post('/cinema', function (req, res) {
+		lightsCinema();
+
+		//telldus.turnOff(1);
+		//telldus.dim(3, 1);
+		//telldus.turnOff(2);
+
+		res.send('');
+	});
+
+	var server = app.listen(3000, function () {
+
+		var host = server.address().address;
+		var port = server.address().port;
+
+		logger.info('Homie is listening at http://%s:%s', host, port);
+
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

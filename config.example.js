@@ -7,5 +7,6 @@ module.exports = {
 		CEILING_LAMPS: 2,
 		WINDOW_LAMPS: 3,
 		TABLE_LAMPS: 4
-	}
+	},
+	iphoneIp: '10.0.0.73'
 };
