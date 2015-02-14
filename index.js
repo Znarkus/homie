@@ -4,56 +4,14 @@ var app = express();
 var childProcess = require('child_process');
 var logger = require('just-log');
 var config = require('./config');
-var iphoneLastSeen;
+var Iphone = require('./iphone.js').Iphone;
+
 
 activate();
 
 ////////////////////
 
-function iphoneHasBeenSeen() {
-	// If was away but is now found
-	if (iphoneIsAway()) {
-		if (withinOperationHours()) {
-			setLampSetting(config.iphone.lampSettings.return);
-		}
-	}
 
-	iphoneLastSeen = new Date();
-}
-function withinOperationHours() {
-	var now = new Date();
-	return now.getHours() > 7 && now.getHours() < 22;
-}
-
-function setupIphoneScan() {
-	var cmd = 'nmap -p 62078 ' + config.iphone.ip + ' | grep "62078/tcp open"';
-	var iphoneWasAwayLast;
-
-	setInterval(function () {
-		childProcess.exec(cmd, function (e, o) {
-			if (o.trim() !== '') {
-				// Wifi active
-				iphoneHasBeenSeen();
-				iphoneWasAwayLast = false;
-			} else {
-				// Wifi not active
-				if (iphoneIsAway() && iphoneWasAwayLast !== undefined && !iphoneWasAwayLast) {
-					// Iphone just disappeared
-					if (withinOperationHours()) {
-						setLampSetting(config.iphone.lampSettings.leave);
-					}
-				}
-
-				iphoneWasAwayLast = true;
-			}
-		});
-	}, 5000);
-}
-
-function iphoneIsAway() {
-	// last seen + 20 minutes >= now
-	return iphoneLastSeen !== undefined && new Date(iphoneLastSeen.getTime() + 20 * 60000) >= new Date();
-}
 
 function runCommand(commands, cb) {
 	var cmd = 'tdtool';
@@ -138,7 +96,21 @@ function setLampSetting(setting) {
 //	]);
 //}
 function activate() {
-	setupIphoneScan();
+	var iphone;
+
+	if (config.iphone) {
+		iphone = new Iphone(config.iphone, {
+			leave: function () {
+				setLampSetting(config.iphone.lampSettings.leave);
+			},
+			return: function () {
+				setLampSetting(config.iphone.lampSettings.return);
+			}
+		});
+
+		console.log(iphone);
+	}
+
 
 	app.use(express.static('static'));
 	app.use(express.static('bower_components'));
