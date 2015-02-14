@@ -5,7 +5,7 @@ Iphone.prototype.iphoneIsAway = iphoneIsAway;
 //Iphone.prototype.iphoneLastSeen = iphoneLastSeen;
 Iphone.prototype.withinOperationHours = withinOperationHours;
 
-module.exports = { Iphone: Iphone };
+module.exports = Iphone;
 
 ///////////////
 

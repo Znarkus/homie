@@ -4,7 +4,7 @@ var app = express();
 var childProcess = require('child_process');
 var logger = require('just-log');
 var config = require('./config');
-var Iphone = require('./iphone.js').Iphone;
+var Iphone = require('./iphone.js');
 
 
 activate();
@@ -107,8 +107,6 @@ function activate() {
 				setLampSetting(config.iphone.lampSettings.return);
 			}
 		});
-
-		console.log(iphone);
 	}
 
 

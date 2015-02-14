@@ -1,6 +1,6 @@
 var assert = require("assert");
 var moment = require('moment');
-var Iphone = require('../iphone.js').Iphone;
+var Iphone = require('../iphone.js');
 
 describe('Iphone', function () {
 
