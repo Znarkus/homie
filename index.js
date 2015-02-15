@@ -24,7 +24,7 @@ function runCommand(commands, cb) {
 		}
 	});
 
-	logger.info(cmd);
+	logger.debug(cmd);
 
 	childProcess.exec(cmd, cb);
 
@@ -45,7 +45,7 @@ function runCommands(commands) {
 			if (error) {
 				logger.error(err.trim());
 			} else {
-				logger.info(out.trim());
+				logger.debug(out.trim());
 			}
 
 			index += 1;
@@ -109,6 +109,8 @@ function activate() {
 		});
 	}
 
+	logger.mode.debug = true;
+	logger.mode.verbose = true;
 
 	app.use(express.static('static'));
 	app.use(express.static('bower_components'));
