@@ -9,8 +9,8 @@ module.exports = {
 	iphone: {
 		ip: '10.0.0.73',
 		lampSettings: {
-			leave: 'off',
-			return: 'morning'
+			left: 'off',
+			returned: 'morning'
 		}
 	},
 	lampSettings: {

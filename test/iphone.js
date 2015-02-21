@@ -1,4 +1,5 @@
-var assert = require("assert");
+//var assert = require("assert");
+var should = require('should');
 var moment = require('moment');
 var Iphone = require('../iphone.js');
 
@@ -9,38 +10,101 @@ describe('Iphone', function () {
 		it('should return false', function () {
 			var iphone = factory();
 			iphone.iphoneLastSeen = new Date();
-			assert.equal(false, iphone.iphoneIsAway());
+			iphone.iphoneIsAway().should.be.false;
 		});
 
 		it('should return true', function () {
 			var iphone = factory();
 			iphone.iphoneLastSeen = moment().subtract(20, 'minutes').toDate();
-			assert.equal(true, iphone.iphoneIsAway());
+			iphone.iphoneIsAway().should.be.true;
 		});
 
 	});
 
-	describe('#withinOperationHours()', function () {
+	describe('#processNmapOutput()', function () {
 
-		it('should return false', function () {
-			var iphone = factory();
-			assert.equal(false, iphone.withinOperationHours(moment('6:00', 'H:mm').toDate()));
+		it('should have left', function () {
+			var cb = [];
+
+			var iphone = factory(function() {
+				// Left
+				cb.push('left');
+			}, function() {
+				// Returned
+				cb.push('returned');
+			});
+
+			iphone.processNmapOutput('', 'anything');
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(20, 'minutes').toDate();
+			//console.log(iphone.iphoneLastSeen);
+			iphone.processNmapOutput('', '');
+
+			cb.should.be.eql(['left']);
 		});
 
-		it('should return true', function () {
-			var iphone = factory();
-			assert.equal(true, iphone.withinOperationHours(moment('8:00', 'H:mm').toDate()));
+		it('should not have left', function () {
+			var cb = [];
+
+			var iphone = factory(function() {
+				// Left
+				cb.push('left');
+			}, function() {
+				// Returned
+				cb.push('returned');
+			});
+
+			iphone.processNmapOutput('', 'anything');
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(19, 'minutes').toDate();
+			//console.log(iphone.iphoneLastSeen);
+			iphone.processNmapOutput('', '');
+
+			cb.should.be.eql([]);
+		});
+
+		it('should have returned', function () {
+			var cb = [];
+
+			var iphone = factory(function() {
+				// Left
+				cb.push('left');
+			}, function() {
+				// Returned
+				cb.push('returned');
+			});
+
+			iphone.processNmapOutput('', '');
+
+			// iPhone will be regarded as away
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(20, 'minutes').toDate();
+
+			iphone.processNmapOutput('', 'anything');
+
+			cb.should.be.eql(['returned']);
 		});
 
 	});
+
+	//describe('#withinOperationHours()', function () {
+	//
+	//	it('should return false', function () {
+	//		var iphone = factory();
+	//		assert.equal(false, iphone.withinOperationHours(moment('6:00', 'H:mm').toDate()));
+	//	});
+	//
+	//	it('should return true', function () {
+	//		var iphone = factory();
+	//		assert.equal(true, iphone.withinOperationHours(moment('8:00', 'H:mm').toDate()));
+	//	});
+	//
+	//});
 
 });
 
-function factory(cbLeave, cbReturn) {
+function factory(cbLeft, cbReturned) {
 	var config = {ip: '10.0.0.73'};
 	var callbacks = {
-		leave: cbLeave || function () {},
-		return: cbReturn || function () {}
+		left: cbLeft || function () {},
+		returned: cbReturned || function () {}
 	};
 
 	return new Iphone(config, callbacks);

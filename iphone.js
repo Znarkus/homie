@@ -2,56 +2,54 @@ var childProcess = require('child_process');
 
 Iphone.prototype.iphoneHasBeenSeen = iphoneHasBeenSeen;
 Iphone.prototype.iphoneIsAway = iphoneIsAway;
-//Iphone.prototype.iphoneLastSeen = iphoneLastSeen;
-Iphone.prototype.withinOperationHours = withinOperationHours;
+Iphone.prototype.processNmapOutput = processNmapOutput;
 
 module.exports = Iphone;
 
 ///////////////
 
 function Iphone(config, callbacks) {
+	var _this = this;
+	var cmd = 'nmap -p 62078 ' + config.ip + ' | grep "62078/tcp open"';
+
 	this.config = config;
 	this.callbacks = callbacks;
 
-	var _this = this;
-	var cmd = 'nmap -p 62078 ' + _this.config.ip + ' | grep "62078/tcp open"';
-	var iphoneWasAwayLast;
-
 	setInterval(function () {
-		childProcess.exec(cmd, function (e, o) {
-			if (o.trim() !== '') {
-				// Wifi active
-				_this.iphoneHasBeenSeen();
-				iphoneWasAwayLast = false;
-			} else {
-				// Wifi not active
-				if (_this.iphoneIsAway() && iphoneWasAwayLast !== undefined && !iphoneWasAwayLast) {
-					// Iphone just disappeared
-					if (_this.withinOperationHours()) {
-						_this.callbacks.leave();
-					}
-				}
-
-				iphoneWasAwayLast = true;
-			}
+		childProcess.exec(cmd, function(error, output) {
+			_this.processNmapOutput(error, output);
 		});
 	}, 5000);
+}
+
+function processNmapOutput(error, output) {
+	// If iPhone spotted on wifi
+	if (iphoneIsActive(output)) {
+		this.iphoneHasBeenSeen();
+		processNmapOutput.iphoneWasActiveLastInterval = true;
+
+	// If iPhone is not on wifi
+	} else {
+		// If Iphone just disappeared
+		if (this.iphoneIsAway() && processNmapOutput.iphoneWasActiveLastInterval === true) {
+			this.callbacks.left();
+		}
+
+		processNmapOutput.iphoneWasActiveLastInterval = false;
+	}
+}
+
+function iphoneIsActive(nmapOutput) {
+	return nmapOutput.trim() !== '';
 }
 
 function iphoneHasBeenSeen() {
 	// If was away but is now found
 	if (this.iphoneIsAway()) {
-		if (this.withinOperationHours()) {
-			this.callbacks.return();
-		}
+		this.callbacks.returned();
 	}
 
 	this.iphoneLastSeen = new Date();
-}
-
-function withinOperationHours(now) {
-	now = now || new Date();
-	return now.getHours() > 7 && now.getHours() < 22;
 }
 
 function iphoneIsAway() {

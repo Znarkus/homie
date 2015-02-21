@@ -59,6 +59,11 @@ function setLampSetting(setting) {
 	runCommands(config.lampSettings[setting]);
 }
 
+function withinOperationHours(now) {
+	now = now || new Date();
+	return now.getHours() > 7 && now.getHours() < 22;
+}
+
 //function lightsMorning() {
 //
 //	runCommands([
@@ -100,11 +105,13 @@ function activate() {
 
 	if (config.iphone) {
 		iphone = new Iphone(config.iphone, {
-			leave: function () {
-				setLampSetting(config.iphone.lampSettings.leave);
+			left: function () {
+				logger.info('iPhone left');
+				setLampSetting(config.iphone.lampSettings.left);
 			},
-			return: function () {
-				setLampSetting(config.iphone.lampSettings.return);
+			returned: function () {
+				logger.info('iPhone returned');
+				setLampSetting(config.iphone.lampSettings.returned);
 			}
 		});
 	}
@@ -124,7 +131,7 @@ function activate() {
 	//3	Byrå	DIMMED:1
 
 	app.post('/lamp-setting/:setting', function (req, res) {
-		setLampSetting(req.param('setting'));
+		setLampSetting(req.params.setting);
 
 		//telldus.turnOn(1);
 		//telldus.dim(2, 120);
