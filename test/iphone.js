@@ -84,6 +84,24 @@ describe('Iphone', function () {
 
 	});
 
+	describe('#logger', function () {
+
+		it('should have logged', function () {
+			var entries = 0;
+
+			var iphone = factory(null, null, { debug: function () {
+				entries++;
+			}});
+
+			iphone.processNmapOutput('', 'anything');
+			iphone.processNmapOutput('', '');
+			iphone.processNmapOutput('', 'anything');
+
+			entries.should.be.greaterThan(0);
+		});
+
+	});
+
 	//describe('#withinOperationHours()', function () {
 	//
 	//	it('should return false', function () {
@@ -100,12 +118,12 @@ describe('Iphone', function () {
 
 });
 
-function factory(cbLeft, cbReturned) {
+function factory(cbLeft, cbReturned, logger) {
 	var config = {ip: '10.0.0.73'};
 	var callbacks = {
 		left: cbLeft || function () {},
 		returned: cbReturned || function () {}
 	};
 
-	return new Iphone(config, callbacks);
+	return new Iphone(config, callbacks, logger);
 }

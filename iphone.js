@@ -14,7 +14,9 @@ function Iphone(config, callbacks, logger) {
 
 	this.config = config;
 	this.callbacks = callbacks;
-	this.logger = logger;
+	this.logger = logger || {
+		debug: function () {}
+	};
 
 	setInterval(function () {
 		childProcess.exec(cmd, function(error, output) {
