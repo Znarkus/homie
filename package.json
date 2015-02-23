@@ -6,7 +6,7 @@
   "dependencies": {
     "debug": "^2.1.1",
     "express": "~4.11.1",
-    "just-log": "0.0.2",
+    "just-log": "master",
     "moment": "^2.9.0",
     "node-gyp": "~1.0.2",
     "telldus": "0.0.9"
