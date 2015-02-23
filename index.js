@@ -113,7 +113,7 @@ function activate() {
 				logger.info('iPhone returned');
 				setLampSetting(config.iphone.lampSettings.returned);
 			}
-		});
+		}, logger);
 	}
 
 	logger.mode.debug = true;

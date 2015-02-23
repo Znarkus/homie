@@ -1,4 +1,5 @@
 var childProcess = require('child_process');
+var debug = require('debug')('iphone');
 
 Iphone.prototype.iphoneHasBeenSeen = iphoneHasBeenSeen;
 Iphone.prototype.iphoneIsAway = iphoneIsAway;
@@ -26,25 +27,29 @@ function Iphone(config, callbacks, logger) {
 }
 
 function processNmapOutput(error, output) {
+	var _this = this;
+	
 	// If iPhone spotted on wifi
 	if (iphoneIsActive(output)) {
 		// Debug log
-		if (processNmapOutput.iphoneWasActiveLastInterval === false) this.logger.debug('iPhone found');
+		debug('iPhone is active (last active=%s)', _this.iphoneWasActiveLastInterval);
+		if (_this.iphoneWasActiveLastInterval === false) _this.logger.debug('iPhone found');
 		
 		this.iphoneHasBeenSeen();
-		processNmapOutput.iphoneWasActiveLastInterval = true;
+		_this.iphoneWasActiveLastInterval = true;
 
 	// If iPhone is not on wifi
 	} else {
 		// Debug log
-		if (processNmapOutput.iphoneWasActiveLastInterval === true) this.logger.debug('iPhone lost');
+		debug('iPhone can\'t be seen (last active=%s)', _this.iphoneWasActiveLastInterval);
+		if (_this.iphoneWasActiveLastInterval === true) _this.logger.debug('iPhone lost');
 
 		// If Iphone just disappeared
-		if (this.iphoneIsAway() && processNmapOutput.iphoneWasActiveLastInterval === true) {
+		if (this.iphoneIsAway() && _this.iphoneWasActiveLastInterval === true) {
 			this.callbacks.left();
 		}
 
-		processNmapOutput.iphoneWasActiveLastInterval = false;
+		_this.iphoneWasActiveLastInterval = false;
 	}
 }
 
