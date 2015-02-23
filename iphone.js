@@ -8,12 +8,13 @@ module.exports = Iphone;
 
 ///////////////
 
-function Iphone(config, callbacks) {
+function Iphone(config, callbacks, logger) {
 	var _this = this;
 	var cmd = 'nmap -p 62078 ' + config.ip + ' | grep "62078/tcp open"';
 
 	this.config = config;
 	this.callbacks = callbacks;
+	this.logger = logger;
 
 	setInterval(function () {
 		childProcess.exec(cmd, function(error, output) {
@@ -25,11 +26,17 @@ function Iphone(config, callbacks) {
 function processNmapOutput(error, output) {
 	// If iPhone spotted on wifi
 	if (iphoneIsActive(output)) {
+		// Debug log
+		if (processNmapOutput.iphoneWasActiveLastInterval === false) this.logger.debug('iPhone found');
+		
 		this.iphoneHasBeenSeen();
 		processNmapOutput.iphoneWasActiveLastInterval = true;
 
 	// If iPhone is not on wifi
 	} else {
+		// Debug log
+		if (processNmapOutput.iphoneWasActiveLastInterval === true) this.logger.debug('iPhone lost');
+
 		// If Iphone just disappeared
 		if (this.iphoneIsAway() && processNmapOutput.iphoneWasActiveLastInterval === true) {
 			this.callbacks.left();
