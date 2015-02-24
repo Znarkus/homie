@@ -35,6 +35,7 @@ describe('Iphone', function () {
 			});
 
 			iphone.processNmapOutput('', 'anything');
+            iphone.processNmapOutput('', '');
 			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(20, 'minutes').toDate();
 			//console.log(iphone.iphoneLastSeen);
 			iphone.processNmapOutput('', '');

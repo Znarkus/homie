@@ -45,7 +45,7 @@ function processNmapOutput(error, output) {
 		if (_this.iphoneWasActiveLastInterval === true) _this.logger.debug('iPhone lost');
 
 		// If Iphone just disappeared
-		if (this.iphoneIsAway() && _this.iphoneWasActiveLastInterval === true) {
+		if (this.iphoneIsAway()) {
 			this.callbacks.left();
 		}
 
