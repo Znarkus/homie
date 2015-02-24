@@ -48,10 +48,16 @@ function processNmapOutput(error, output) {
 		debug('iPhone can\'t be seen (last active=%s)', _this.iphoneWasActiveLastInterval);
 		if (_this.iphoneWasActiveLastInterval === true) _this.logger.debug('iPhone lost');
 
-		// If Iphone just disappeared
-		if (this.iphoneIsAway()) {
-			this.callbacks.left();
-		}
+		if (_this.iphoneIsAway()) {
+            if (!_this.iphoneWasAwayPreviousRun) {
+                // If Iphone just disappeared
+                _this.callbacks.left();
+            }
+
+            _this.iphoneWasAwayPreviousRun = true;
+		} else {
+            _this.iphoneWasAwayPreviousRun = false;
+        }
 
 		_this.iphoneWasActiveLastInterval = false;
 	}

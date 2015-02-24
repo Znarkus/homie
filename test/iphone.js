@@ -34,10 +34,16 @@ describe('Iphone', function () {
 				cb.push('returned');
 			});
 
-			iphone.processNmapOutput('', 'anything');
+			iphone.processNmapOutput('', 'iphone seen');
+			iphone.processNmapOutput('', 'iphone seen');
+			iphone.processNmapOutput('', 'iphone seen');
+            iphone.processNmapOutput('', '');
+            iphone.processNmapOutput('', '');
             iphone.processNmapOutput('', '');
 			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(40, 'minutes').toDate();
-			//console.log(iphone.iphoneLastSeen);
+
+			iphone.processNmapOutput('', '');
+			iphone.processNmapOutput('', '');
 			iphone.processNmapOutput('', '');
 
 			cb.should.be.eql(['left']);
@@ -54,9 +60,13 @@ describe('Iphone', function () {
 				cb.push('returned');
 			});
 
-			iphone.processNmapOutput('', 'anything');
+			iphone.processNmapOutput('', 'iphone seen');
+			iphone.processNmapOutput('', 'iphone seen');
+			iphone.processNmapOutput('', 'iphone seen');
 			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(39, 'minutes').toDate();
 			//console.log(iphone.iphoneLastSeen);
+			iphone.processNmapOutput('', '');
+			iphone.processNmapOutput('', '');
 			iphone.processNmapOutput('', '');
 
 			cb.should.be.eql([]);
@@ -74,11 +84,14 @@ describe('Iphone', function () {
 			});
 
 			iphone.processNmapOutput('', '');
+			iphone.processNmapOutput('', '');
+            iphone.processNmapOutput('', '');
 
 			// iPhone will be regarded as away
 			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(40, 'minutes').toDate();
 
-			iphone.processNmapOutput('', 'anything');
+            iphone.processNmapOutput('', 'iphone seen');
+			iphone.processNmapOutput('', 'iphone seen');
 
 			cb.should.be.eql(['returned']);
 		});
