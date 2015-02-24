@@ -67,6 +67,6 @@ function iphoneHasBeenSeen() {
 }
 
 function iphoneIsAway() {
-	// last seen + 20 minutes >= now
-	return this.iphoneLastSeen !== undefined && new Date(this.iphoneLastSeen.getTime() + 20 * 60000) <= new Date();
+	// last seen + 40 minutes >= now
+	return this.iphoneLastSeen !== undefined && new Date(this.iphoneLastSeen.getTime() + 40 * 60000) <= new Date();
 }

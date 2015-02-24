@@ -15,7 +15,7 @@ describe('Iphone', function () {
 
 		it('should return true', function () {
 			var iphone = factory();
-			iphone.iphoneLastSeen = moment().subtract(20, 'minutes').toDate();
+			iphone.iphoneLastSeen = moment().subtract(40, 'minutes').toDate();
 			iphone.iphoneIsAway().should.be.true;
 		});
 
@@ -36,7 +36,7 @@ describe('Iphone', function () {
 
 			iphone.processNmapOutput('', 'anything');
             iphone.processNmapOutput('', '');
-			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(20, 'minutes').toDate();
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(40, 'minutes').toDate();
 			//console.log(iphone.iphoneLastSeen);
 			iphone.processNmapOutput('', '');
 
@@ -55,7 +55,7 @@ describe('Iphone', function () {
 			});
 
 			iphone.processNmapOutput('', 'anything');
-			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(19, 'minutes').toDate();
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(39, 'minutes').toDate();
 			//console.log(iphone.iphoneLastSeen);
 			iphone.processNmapOutput('', '');
 
@@ -76,7 +76,7 @@ describe('Iphone', function () {
 			iphone.processNmapOutput('', '');
 
 			// iPhone will be regarded as away
-			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(20, 'minutes').toDate();
+			iphone.iphoneLastSeen = moment(iphone.iphoneLastSeen).subtract(40, 'minutes').toDate();
 
 			iphone.processNmapOutput('', 'anything');
 
