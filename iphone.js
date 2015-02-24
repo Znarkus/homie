@@ -19,6 +19,10 @@ function Iphone(config, callbacks, logger) {
 		debug: function () {}
 	};
 
+    // Fake that the iPhone has been seen as an initial value
+    this.iphoneLastSeen = new Date();
+
+    // Start loop
 	setInterval(function () {
 		childProcess.exec(cmd, function(error, output) {
 			_this.processNmapOutput(error, output);
