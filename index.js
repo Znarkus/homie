@@ -3,8 +3,10 @@ var app = express();
 //var telldus = require('telldus');
 var childProcess = require('child_process');
 var logger = require('just-log');
+var Path = require('path');
 var config = require('./config');
 var Iphone = require('./iphone.js');
+var currentSetting;
 
 
 activate();
@@ -56,6 +58,7 @@ function runCommands(commands) {
 
 function setLampSetting(setting) {
 	logger.info('Lamp setting: %s', setting);
+	currentSetting = setting;
 	runCommands(config.lampSettings[setting]);
 }
 
@@ -102,6 +105,7 @@ function withinOperationHours(now) {
 //}
 function activate() {
 	var iphone;
+	var remoteOffSetting;
 
 	if (config.iphone) {
 		iphone = new Iphone(config.iphone, {
@@ -119,8 +123,8 @@ function activate() {
 	logger.mode.debug = true;
 	logger.mode.verbose = true;
 
-	app.use(express.static('static'));
-	app.use(express.static('bower_components'));
+	app.use(express.static(Path.resolve(__dirname, 'static')));
+	app.use(express.static(Path.resolve(__dirname, 'bower_components')));
 
 	//3	Strömbrytare vägg	ON
 	//2	Taklampor	DIMMED:1
@@ -137,7 +141,25 @@ function activate() {
 		//telldus.dim(2, 120);
 		//telldus.dim(3, 100);
 
-		res.send('');
+		res.status(204).end();
+	});
+
+	app.post('/remote/:status', function (req, res) {
+		if (req.params.status == 'off') {
+			if (currentSetting != 'off') {
+				remoteOffSetting = currentSetting;
+			}
+
+			setLampSetting('off');
+		} else if (req.params.status == 'on') {
+			setLampSetting(remoteOffSetting || 'full');
+		}
+
+		//telldus.turnOn(1);
+		//telldus.dim(2, 120);
+		//telldus.dim(3, 100);
+
+		res.status(204).end();
 	});
 
 	/*app.post('/off', function (req, res) {
