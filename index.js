@@ -155,8 +155,10 @@ function activate() {
 			if (currentSetting == 'off') {
 				// If off, turn on
 				setLampSetting(remoteOffSetting || 'full');
-			} else {
+			} else if (currentSetting == 'full') {
 				setLampSetting('morning');
+			} else if (currentSetting == 'morning') {
+				setLampSetting('full');
 			}
 		}
 
