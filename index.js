@@ -152,7 +152,12 @@ function activate() {
 
 			setLampSetting('off');
 		} else if (req.params.status == 'on') {
-			setLampSetting(remoteOffSetting || 'full');
+			if (currentSetting == 'off') {
+				// If off, turn on
+				setLampSetting(remoteOffSetting || 'full');
+			} else {
+				setLampSetting('morning');
+			}
 		}
 
 		//telldus.turnOn(1);
