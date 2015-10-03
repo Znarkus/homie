@@ -13,9 +13,19 @@
 			padding: 5px;
 			margin: 10px;
 		}
+		#status {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: 10px;
+			background: #fff;
+			font-family: sans-serif;
+		}
 	</style>
 </head>
 <body>
+
+	<div id="status"></div>
 
 	<form action="lamp-setting/off" method="post">
 		<button type="submit">OFF</button>
@@ -47,7 +57,13 @@
 
 		$('form').submit(function () {
 			var $this = $(this);
-			$.post($this.attr('action'));
+
+			$('#status').text('Working..').show();
+
+			$.post($this.attr('action'), function() {
+				$('#status').fadeOut();
+			});
+
 			return false;
 		});
 	</script>
